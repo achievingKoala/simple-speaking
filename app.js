@@ -155,7 +155,6 @@ function feedback(message, kind = "") {
 
 function refreshMic() {
   const tencent = provider.value === "tencent";
-  byId("provider-note").hidden = !tencent;
   const issue = tencent
     ? (location.protocol === "file:" || !window.isSecureContext
       ? "请通过 Cloudflare 的 HTTPS 地址或 Wrangler 本地预览使用腾讯云识别。"
@@ -211,6 +210,12 @@ function prepareRound(selected, type, missed = null, focus = true) {
   byId("progress").hidden = true;
   byId("question").hidden = true;
   byId("result").hidden = true;
+  renderPreviewList();
+  byId("preview").hidden = false;
+  if (focus) byId("preview-title").focus();
+}
+
+function renderPreviewList() {
   byId("preview-list").replaceChildren(...queue.map(([word, meaning]) => {
     const item = document.createElement("li");
     const english = document.createElement("strong");
@@ -221,8 +226,6 @@ function prepareRound(selected, type, missed = null, focus = true) {
     item.append(english, translation);
     return item;
   }));
-  byId("preview").hidden = false;
-  if (focus) byId("preview-title").focus();
 }
 
 function beginRound(review = false) {
@@ -454,7 +457,6 @@ function switchPractice(selected, type) {
 }
 
 provider.addEventListener("change", () => {
-  byId("provider-note").hidden = provider.value !== "tencent";
   if (pausedAt !== null || scored || byId("question").hidden) return;
   stopListening();
   refreshMic();
@@ -484,6 +486,14 @@ const topicPracticeButtons = topics.map((topic, id) => {
   return buttons;
 });
 
+byId("shuffle-preview").addEventListener("click", () => {
+  if (byId("preview").hidden) return;
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [queue[i], queue[j]] = [queue[j], queue[i]];
+  }
+  renderPreviewList();
+});
 byId("start").addEventListener("click", () => {
   if (byId("preview").hidden) return;
   beginRound();

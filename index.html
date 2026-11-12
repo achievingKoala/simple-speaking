@@ -31,11 +31,10 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <h2>选择话题</h2><div id="topics" class="topic-list"></div>
 <div style="margin-top:18px">
 <label for="provider" class="label">语音识别方式</label>
-<select id="provider" class="topic" aria-describedby="provider-note">
+<select id="provider" class="topic">
 <option value="tencent" selected>腾讯云识别</option>
 <option value="browser">浏览器识别</option>
 </select>
-<p id="provider-note" class="subtle">短录音会通过本站发送到腾讯云进行识别。</p>
 </div>
 </aside>
 <section class="panel practice" aria-label="口语练习">
@@ -50,7 +49,10 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 </div>
 <progress id="progress" class="progress" aria-label="本轮完成进度" hidden></progress>
 <div id="preview" class="preview" hidden>
+<div class="row">
 <h2 id="preview-title" tabindex="-1">本轮词表</h2>
+<button class="secondary" id="shuffle-preview" type="button">随机顺序</button>
+</div>
 <ul id="preview-list" class="preview-list"></ul>
 <button class="primary" id="start" type="button">开始练习</button>
 </div>
