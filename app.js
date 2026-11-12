@@ -276,9 +276,18 @@ function normalize(text) {
     .replace(/[^a-z]+/g, " ").trim();
 }
 
+function matchesAnswer(transcript, target) {
+  const spoken = normalize(transcript);
+  if (spoken === normalize(target)) return true;
+  const parts = target.split(/(?<=[a-z])[-‐‑–](?=[a-z])/i);
+  if (parts.length === 1) return false;
+  const pattern = parts.map(normalize).join(" ?");
+  return new RegExp(`^${pattern}$`).test(spoken);
+}
+
 function score(transcript) {
   const word = queue[index];
-  const correct = normalize(transcript) === normalize(word[0]);
+  const correct = matchesAnswer(transcript, word[0]);
   scored = true;
   stats.attempts++;
   const counts = stats.words[word[0]] ??= { correct: 0, attempts: 0 };
