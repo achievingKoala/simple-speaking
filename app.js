@@ -172,6 +172,7 @@ function stopListening() {
   active = null;
   if (!session) return;
   clearTimeout(session.timeout);
+  clearInterval(session.countdown);
   try {
     session.recognizer.abort();
   } catch {
@@ -223,7 +224,13 @@ function renderPreviewList() {
     english.textContent = word;
     const translation = document.createElement("span");
     translation.textContent = meaning;
-    item.append(english, translation);
+    const details = document.createElement("span");
+    details.className = "preview-details";
+    const correct = document.createElement("span");
+    correct.className = "preview-count";
+    correct.textContent = `正确 ${stats.words[word]?.correct ?? 0} 次`;
+    details.append(translation, correct);
+    item.append(english, details);
     return item;
   }));
 }
@@ -390,6 +397,8 @@ function listen() {
 
   session.timeout = setTimeout(() => finish("麦克风启动超时，请检查权限后重试。"), 20000);
   function showProcessing() {
+    if (active !== session) return;
+    clearInterval(session.countdown);
     label.textContent = "正在识别…";
     clearTimeout(session.timeout);
     session.timeout = setTimeout(() => finish("本次未收到识别结果，请再说一次。"), tencent ? 15000 : 3000);
@@ -398,7 +407,13 @@ function listen() {
   recognizer.onstart = () => {
     if (active !== session) return;
     clearTimeout(session.timeout);
-    label.textContent = "正在聆听…";
+    const deadline = performance.now() + seconds * 1000;
+    function showCountdown() {
+      const remaining = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
+      label.textContent = `正在聆听 · ${remaining} 秒`;
+    }
+    showCountdown();
+    session.countdown = setInterval(showCountdown, 200);
     feedback("请用英文朗读。");
     session.timeout = setTimeout(() => {
       showProcessing();
@@ -492,6 +507,11 @@ byId("shuffle-preview").addEventListener("click", () => {
     const j = Math.floor(Math.random() * (i + 1));
     [queue[i], queue[j]] = [queue[j], queue[i]];
   }
+  renderPreviewList();
+});
+byId("sort-preview").addEventListener("click", () => {
+  if (byId("preview").hidden) return;
+  queue.sort(([first], [second]) => (stats.words[first]?.correct ?? 0) - (stats.words[second]?.correct ?? 0));
   renderPreviewList();
 });
 byId("start").addEventListener("click", () => {

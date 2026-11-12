@@ -17,6 +17,7 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 .topic-list{display:grid;gap:8px}.topic-card{padding:10px;border:1px solid #ede7f5;border-radius:13px}.topic-heading{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}.topic-heading small{display:block;margin-top:2px;color:#625773;font-weight:400}.topic-icon{flex-shrink:0}.practice-types{display:flex;gap:6px;margin-top:8px}.practice-types button{flex:1;padding:6px;font-size:14px;background:white}.practice-types button:hover{background:#f3ecff;border-color:#cdb9ef}.practice-types button[aria-pressed=true]{background:#653bb8;border-color:#653bb8;color:white}
 .preview{padding-top:14px}.preview h2{margin:0;font-size:20px}.preview-list{margin:10px 0 16px;padding:0;list-style:none}.preview-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:7px 0;border-bottom:1px solid #efe9f6;font-size:14px}.preview-list span{color:#655776}
 .break-reminder{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px;padding:10px 12px;border-radius:11px;background:#f6f1fe;color:#5b389c;font-size:14px}.break-reminder p{margin:0}
+.preview-header{flex-wrap:wrap}.preview-controls,.preview-details{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.preview-count{font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -49,9 +50,12 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 </div>
 <progress id="progress" class="progress" aria-label="本轮完成进度" hidden></progress>
 <div id="preview" class="preview" hidden>
-<div class="row">
+<div class="row preview-header">
 <h2 id="preview-title" tabindex="-1">本轮词表</h2>
+<div class="preview-controls">
+<button class="secondary" id="sort-preview" type="button">正确次数从低到高</button>
 <button class="secondary" id="shuffle-preview" type="button">随机顺序</button>
+</div>
 </div>
 <ul id="preview-list" class="preview-list"></ul>
 <button class="primary" id="start" type="button">开始练习</button>
