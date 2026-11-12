@@ -145,8 +145,11 @@ function startRound(selected, type, missed = null, focus = true) {
   index = 0;
   right = 0;
   wrong = [];
-  topicButtons.forEach((button, id) => button.setAttribute("aria-pressed", id === selected));
-  practiceButtons.forEach(button => button.setAttribute("aria-pressed", button.dataset.practice === type));
+  topicPracticeButtons.forEach((buttons, id) => {
+    for (const [option, button] of buttons) {
+      button.setAttribute("aria-pressed", id === selected && option === type);
+    }
+  });
   renderQuestion(focus);
 }
 
@@ -339,18 +342,29 @@ provider.addEventListener("change", () => {
   stopListening();
   refreshMic();
 });
-const topicButtons = topics.map((topic, id) => {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "topic transition-colors";
-  button.innerHTML = `<span class="topic-icon" aria-hidden="true">${topic.icon}</span><span><b>${topic.name}</b><small lang="en">${topic.english}</small></span>`;
-  button.addEventListener("click", () => switchPractice(id, practiceType));
-  byId("topics").append(button);
-  return button;
-});
-const practiceButtons = [...document.querySelectorAll("[data-practice]")];
-practiceButtons.forEach(button => {
-  button.addEventListener("click", () => switchPractice(topicIndex, button.dataset.practice));
+const topicPracticeButtons = topics.map((topic, id) => {
+  const card = document.createElement("div");
+  card.className = "topic-card";
+  const heading = document.createElement("h3");
+  heading.id = `topic-name-${id}`;
+  heading.className = "topic-heading";
+  heading.innerHTML = `<span class="topic-icon" aria-hidden="true">${topic.icon}</span><span>${topic.name}<small lang="en">${topic.english}</small></span>`;
+  const options = document.createElement("div");
+  options.className = "practice-types";
+  options.setAttribute("role", "group");
+  options.setAttribute("aria-labelledby", heading.id);
+  const buttons = Object.entries(practiceLabels).map(([type, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary";
+    button.textContent = label;
+    button.addEventListener("click", () => switchPractice(id, type));
+    options.append(button);
+    return [type, button];
+  });
+  card.append(heading, options);
+  byId("topics").append(card);
+  return buttons;
 });
 
 mic.addEventListener("click", listen);
