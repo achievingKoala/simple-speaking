@@ -39,9 +39,9 @@ const topics = [
     name: "健康与运动", english: "Health & Fitness", icon: "🏃",
     words: [
       ["stamina", "耐力"], ["posture", "姿势"], ["injury", "损伤"], ["recovery", "恢复"],
-      ["nutrition", "营养"], ["fitness", "身体素质"], ["strength", "力量"], ["flexibility", "柔韧性"],
-      ["workout", "锻炼"], ["hydration", "补水"], ["stress", "压力"], ["fatigue", "疲劳"],
-      ["stretching", "拉伸"], ["appetite", "食欲"], ["stay in shape", "保持体形"],
+      ["nutrition", "营养"], ["strength", "力量"], ["flexibility", "柔韧性"],
+      ["workout", "锻炼"], ["stress", "压力"], ["stretching", "拉伸"],
+      ["stay in shape", "保持体形"],
       ["work out regularly", "定期锻炼"], ["relieve stress", "缓解压力"], ["get enough sleep", "睡够觉"],
       ["cut down on sugar", "减少糖摄入"], ["eat a balanced diet", "保持均衡饮食"],
       ["build muscle", "增肌"], ["go for a run", "去跑步"], ["warm up before exercise", "运动前热身"],
