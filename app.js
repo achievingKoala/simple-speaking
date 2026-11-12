@@ -70,6 +70,7 @@ const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const provider = byId("provider");
 const storageKey = "speak-daily-stats-v1";
 const roundSize = 10;
+const milestoneInterval = 50;
 const practiceLabels = { word: "单词", phrase: "词组" };
 const seconds = 8;
 const feedbackDelay = 1400;
@@ -96,6 +97,13 @@ function updateRoundTime() {
   const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const seconds = String(elapsed % 60).padStart(2, "0");
   byId("round-time").textContent = `${minutes}:${seconds}`;
+}
+
+function stopRoundTimer() {
+  if (roundTimer === undefined) return;
+  updateRoundTime();
+  clearInterval(roundTimer);
+  roundTimer = undefined;
 }
 
 function validCounts(counts) {
@@ -172,7 +180,7 @@ function pickRoundEntries(topic, type) {
 }
 
 function prepareRound(selected, type, missed = null, focus = true) {
-  clearInterval(roundTimer);
+  stopRoundTimer();
   pausedAt = null;
   byId("round-timer").hidden = true;
   cancelAdvance();
@@ -247,8 +255,7 @@ function togglePause() {
   if (byId("question").hidden) return;
   if (pausedAt === null) {
     pausedAt = performance.now();
-    clearInterval(roundTimer);
-    updateRoundTime();
+    stopRoundTimer();
     cancelAdvance();
     stopListening();
     byId("listen").disabled = true;
@@ -290,6 +297,10 @@ function score(transcript) {
   const correct = matchesAnswer(transcript, word[0]);
   scored = true;
   stats.attempts++;
+  if (stats.attempts % milestoneInterval === 0) {
+    byId("milestone-title").textContent = `🎉 累计完成 ${stats.attempts} 题！`;
+    byId("break-reminder").hidden = false;
+  }
   const counts = stats.words[word[0]] ??= { correct: 0, attempts: 0 };
   counts.attempts++;
   if (correct) {
@@ -420,8 +431,7 @@ function listen() {
 }
 
 function showResult() {
-  clearInterval(roundTimer);
-  updateRoundTime();
+  stopRoundTimer();
   byId("result-time").textContent = `本轮用时 ${byId("round-time").textContent}`;
   byId("round-timer").hidden = true;
   byId("question").hidden = true;
@@ -486,6 +496,9 @@ byId("start").addEventListener("click", () => {
 });
 mic.addEventListener("click", listen);
 pauseButton.addEventListener("click", togglePause);
+byId("dismiss-break").addEventListener("click", () => {
+  byId("break-reminder").hidden = true;
+});
 showEnglish.addEventListener("change", () => {
   byId("word").hidden = !showEnglish.checked;
 });
@@ -497,11 +510,11 @@ byId("retry").addEventListener("click", () => {
 byId("restart").addEventListener("click", () => {
   prepareRound(topicIndex, practiceType);
 });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && pausedAt === null && !byId("question").hidden) togglePause();
+});
 window.addEventListener("pagehide", () => {
-  cancelAdvance();
-  if (!active) return;
-  stopListening();
-  refreshMic();
+  if (pausedAt === null && !byId("question").hidden) togglePause();
 });
 showStats();
 prepareRound(0, practiceType, null, false);

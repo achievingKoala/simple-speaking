@@ -16,6 +16,7 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 @media(max-width:690px){.shell{padding-inline:15px}main{padding-block:22px}.layout{grid-template-columns:1fr;gap:12px}.intro,.panel{padding:17px}.topic-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}.topic{margin:0;padding:7px;gap:6px}.topic-icon{width:26px;height:28px}.totals{gap:9px}.topics h2{margin-bottom:10px}.center{padding-top:24px}}
 .topic-list{display:grid;gap:8px}.topic-card{padding:10px;border:1px solid #ede7f5;border-radius:13px}.topic-heading{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}.topic-heading small{display:block;margin-top:2px;color:#625773;font-weight:400}.topic-icon{flex-shrink:0}.practice-types{display:flex;gap:6px;margin-top:8px}.practice-types button{flex:1;padding:6px;font-size:14px;background:white}.practice-types button:hover{background:#f3ecff;border-color:#cdb9ef}.practice-types button[aria-pressed=true]{background:#653bb8;border-color:#653bb8;color:white}
 .preview{padding-top:14px}.preview h2{margin:0;font-size:20px}.preview-list{margin:10px 0 16px;padding:0;list-style:none}.preview-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:7px 0;border-bottom:1px solid #efe9f6;font-size:14px}.preview-list span{color:#655776}
+.break-reminder{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px;padding:10px 12px;border-radius:11px;background:#f6f1fe;color:#5b389c;font-size:14px}.break-reminder p{margin:0}
 </style>
 </head>
 <body>
@@ -40,6 +41,13 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <section class="panel practice" aria-label="口语练习">
 <div class="row"><span class="label" id="round-label"></span><span class="counter" id="round-timer" hidden>用时 <span id="round-time">00:00</span></span><span class="counter" id="counter"></span></div>
 <p class="subtle"><label><input id="show-english" type="checkbox" checked> 显示英文题目</label></p>
+<div id="break-reminder" class="break-reminder" hidden>
+<div role="status">
+<strong id="milestone-title">🎉 累计完成 50 题！</strong>
+<p>可以歇一会儿，喝口水再继续。</p>
+</div>
+<button class="secondary" id="dismiss-break" type="button">知道了</button>
+</div>
 <progress id="progress" class="progress" aria-label="本轮完成进度" hidden></progress>
 <div id="preview" class="preview" hidden>
 <h2 id="preview-title" tabindex="-1">本轮词表</h2>
