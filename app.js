@@ -5,8 +5,8 @@ const topics = [
       ["assignment", "作业，任务"], ["deadline", "截止日期"], ["lecture", "讲座；大学课程"], ["degree", "学位"],
       ["semester", "学期"], ["internship", "实习"], ["colleague", "同事"], ["promotion", "晋升"],
       ["salary", "薪水"], ["workload", "工作量"], ["schedule", "日程安排"], ["teamwork", "团队合作"],
-      ["qualification", "资格，资历"], ["profession", "职业"], ["job interview", "求职面试"],
-      ["career path", "职业发展路径"], ["work experience", "工作经验"], ["part-time job", "兼职工作"],
+      ["qualification", "资格，资历"], ["profession", "职业"], 
+      ["job interview", "求职面试"],["career path", "职业发展路径"], ["work experience", "工作经验"], ["part-time job", "兼职工作"],
       ["meet a deadline", "赶上截止日期"], ["work from home", "在家办公"],
       ["take notes", "记笔记"], ["give a presentation", "做演示汇报"],
       ["apply for a job", "申请工作"], ["gain practical experience", "积累实践经验"]
@@ -18,7 +18,8 @@ const topics = [
       ["routine", "日常惯例"], ["commute", "通勤"], ["neighborhood", "社区，街区"], ["apartment", "公寓"],
       ["rent", "租金；租用"], ["laundry", "要洗的衣物；洗衣"], ["groceries", "食品杂货"], ["recipe", "食谱"],
       ["breakfast", "早餐"], ["exercise", "锻炼"], ["housework", "家务"], ["errand", "外出要办的事"],
-      ["budget", "预算"], ["convenient", "方便的"], ["rush hour", "交通高峰期"], ["get up early", "早起"],
+      ["budget", "预算"], ["convenient", "方便的"], 
+      ["rush hour", "交通高峰期"], ["get up early", "早起"],
       ["take a break", "休息一下"], ["eat out", "外出就餐"], ["do the dishes", "洗碗"], ["go for a walk", "去散步"],
       ["do the laundry", "洗衣服"], ["cook dinner", "做晚饭"], ["catch the bus", "赶公交车"], ["go to bed", "上床睡觉"]
     ]
@@ -38,14 +39,28 @@ const topics = [
   {
     name: "健康与运动", english: "Health & Fitness", icon: "🏃",
     words: [
-      ["stamina", "耐力"], ["posture", "姿势"], ["injury", "损伤"], ["recovery", "恢复"],
+      ["posture", "姿势"], ["injury", "损伤"], ["recovery", "恢复"],
       ["nutrition", "营养"], ["strength", "力量"], ["flexibility", "柔韧性"],
-      ["workout", "锻炼"], ["stress", "压力"], ["stretching", "拉伸"],
+      ["workout", "锻炼"], ["stress", "压力"], ["stretching", "拉伸"], ["stamina", "耐力"],
       ["stay in shape", "保持体形"],
       ["work out regularly", "定期锻炼"], ["relieve stress", "缓解压力"], ["get enough sleep", "睡够觉"],
       ["cut down on sugar", "减少糖摄入"], ["eat a balanced diet", "保持均衡饮食"],
       ["build muscle", "增肌"], ["go for a run", "去跑步"], ["warm up before exercise", "运动前热身"],
       ["recover from an injury", "从伤病中恢复"]
+    ]
+  },
+  {
+    name: "科技与社交媒体", english: "Technology & Social Media", icon: "📱",
+    words: [
+      ["device", "设备"], ["notification", "通知"], ["privacy", "隐私"],
+      ["password", "密码"], ["platform", "平台"], ["algorithm", "算法"],
+      ["follower", "关注者"], ["comment", "评论"], ["distraction", "让人分心的事物"],
+      ["misinformation", "错误信息"],
+      ["scroll through my feed", "刷我的社交动态"], ["keep in touch", "保持联系"],
+      ["post a photo", "发布照片"], ["turn off notifications", "关闭通知"],
+      ["limit screen time", "限制屏幕使用时间"], ["protect personal information", "保护个人信息"],
+      ["share a link", "分享链接"], ["join a video call", "加入视频通话"],
+      ["take a break from social media", "暂时不用社交媒体"], ["verify the source", "核实信息来源"]
     ]
   }
 ];
@@ -67,10 +82,18 @@ let queue = [];
 let index = 0;
 let right = 0;
 let wrong = [];
-let review = false;
 let scored = false;
 let active = null;
 let advanceTimer;
+let roundStartedAt;
+let roundTimer;
+
+function updateRoundTime() {
+  const elapsed = Math.floor((performance.now() - roundStartedAt) / 1000);
+  const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const seconds = String(elapsed % 60).padStart(2, "0");
+  byId("round-time").textContent = `${minutes}:${seconds}`;
+}
 
 function validCounts(counts) {
   return Number.isSafeInteger(counts?.correct) && Number.isSafeInteger(counts?.attempts)
@@ -140,20 +163,19 @@ function stopListening() {
 }
 
 function pickRoundEntries(topic, type) {
-  const entries = topic.words.filter(([word]) => /\s/.test(word.trim()) === (type === "phrase"));
-  for (let i = entries.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [entries[i], entries[j]] = [entries[j], entries[i]];
-  }
-  return entries.slice(0, roundSize);
+  return topic.words
+    .filter(([word]) => /\s/.test(word.trim()) === (type === "phrase"))
+    .slice(0, roundSize);
 }
 
-function startRound(selected, type, missed = null, focus = true) {
+function prepareRound(selected, type, missed = null, focus = true) {
+  clearInterval(roundTimer);
+  byId("round-timer").hidden = true;
   cancelAdvance();
   stopListening();
   topicIndex = selected;
   practiceType = type;
-  review = missed !== null;
+  const review = missed !== null;
   queue = missed ? [...missed] : pickRoundEntries(topics[selected], type);
   index = 0;
   right = 0;
@@ -163,7 +185,38 @@ function startRound(selected, type, missed = null, focus = true) {
       button.setAttribute("aria-pressed", id === selected && option === type);
     }
   });
-  renderQuestion(focus);
+  byId("round-label").textContent = `${topics[selected].name} · ${practiceLabels[type]}${review ? " · 错词重练" : ""}`;
+  if (review) {
+    beginRound();
+    return;
+  }
+  byId("counter").textContent = `${queue.length} 个`;
+  byId("progress").hidden = true;
+  byId("question").hidden = true;
+  byId("result").hidden = true;
+  byId("preview-list").replaceChildren(...queue.map(([word, meaning]) => {
+    const item = document.createElement("li");
+    const english = document.createElement("strong");
+    english.lang = "en";
+    english.textContent = word;
+    const translation = document.createElement("span");
+    translation.textContent = meaning;
+    item.append(english, translation);
+    return item;
+  }));
+  byId("preview").hidden = false;
+  if (focus) byId("preview-title").focus();
+}
+
+function beginRound() {
+  roundStartedAt = performance.now();
+  updateRoundTime();
+  byId("round-timer").hidden = false;
+  roundTimer = setInterval(updateRoundTime, 250);
+  byId("preview").hidden = true;
+  byId("progress").hidden = false;
+  renderQuestion(true);
+  listen();
 }
 
 function renderQuestion(focus) {
@@ -171,7 +224,6 @@ function renderQuestion(focus) {
   const [word, meaning] = queue[index];
   byId("result").hidden = true;
   byId("question").hidden = false;
-  byId("round-label").textContent = `${topics[topicIndex].name} · ${practiceLabels[practiceType]}${review ? " · 错词重练" : ""}`;
   byId("counter").textContent = `${index + 1} / ${queue.length}`;
   byId("progress").max = queue.length;
   byId("progress").value = index;
@@ -324,6 +376,10 @@ function listen() {
 }
 
 function showResult() {
+  clearInterval(roundTimer);
+  updateRoundTime();
+  byId("result-time").textContent = `本轮用时 ${byId("round-time").textContent}`;
+  byId("round-timer").hidden = true;
   byId("question").hidden = true;
   byId("result").hidden = false;
   byId("counter").textContent = `${queue.length} / ${queue.length}`;
@@ -343,10 +399,10 @@ function showResult() {
 
 const mic = byId("listen");
 function switchPractice(selected, type) {
-  if (selected === topicIndex && type === practiceType) return;
+  if (selected === topicIndex && type === practiceType && !byId("preview").hidden) return;
   if (!byId("question").hidden && (active || index > 0 || scored)
     && !window.confirm("切换练习会结束当前这一轮，已记录的次数会保留。继续切换？")) return;
-  startRound(selected, type);
+  prepareRound(selected, type);
 }
 
 provider.addEventListener("change", () => {
@@ -380,15 +436,18 @@ const topicPracticeButtons = topics.map((topic, id) => {
   return buttons;
 });
 
+byId("start").addEventListener("click", () => {
+  if (byId("preview").hidden) return;
+  beginRound();
+});
 mic.addEventListener("click", listen);
 byId("next").addEventListener("click", advance);
 byId("retry").addEventListener("click", () => {
-  startRound(topicIndex, practiceType, wrong);
-  listen();
+  if (!wrong.length) return;
+  prepareRound(topicIndex, practiceType, wrong);
 });
 byId("restart").addEventListener("click", () => {
-  startRound(topicIndex, practiceType);
-  listen();
+  prepareRound(topicIndex, practiceType);
 });
 window.addEventListener("pagehide", () => {
   cancelAdvance();
@@ -397,4 +456,4 @@ window.addEventListener("pagehide", () => {
   refreshMic();
 });
 showStats();
-startRound(0, practiceType, null, false);
+prepareRound(0, practiceType, null, false);
