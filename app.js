@@ -87,9 +87,12 @@ let active = null;
 let advanceTimer;
 let roundStartedAt;
 let roundTimer;
+let pausedAt = null;
+const showEnglish = byId("show-english");
+const pauseButton = byId("pause");
 
 function updateRoundTime() {
-  const elapsed = Math.floor((performance.now() - roundStartedAt) / 1000);
+  const elapsed = Math.floor(((pausedAt ?? performance.now()) - roundStartedAt) / 1000);
   const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const seconds = String(elapsed % 60).padStart(2, "0");
   byId("round-time").textContent = `${minutes}:${seconds}`;
@@ -170,6 +173,7 @@ function pickRoundEntries(topic, type) {
 
 function prepareRound(selected, type, missed = null, focus = true) {
   clearInterval(roundTimer);
+  pausedAt = null;
   byId("round-timer").hidden = true;
   cancelAdvance();
   stopListening();
@@ -209,6 +213,7 @@ function prepareRound(selected, type, missed = null, focus = true) {
 }
 
 function beginRound() {
+  pauseButton.textContent = "暂停";
   roundStartedAt = performance.now();
   updateRoundTime();
   byId("round-timer").hidden = false;
@@ -228,12 +233,42 @@ function renderQuestion(focus) {
   byId("progress").max = queue.length;
   byId("progress").value = index;
   byId("word").textContent = word;
+  byId("word").hidden = !showEnglish.checked;
   byId("meaning").textContent = meaning;
   byId("word-stats").textContent = wordAccuracy(word);
   byId("next").hidden = true;
+  byId("next").disabled = false;
   byId("listen").hidden = false;
   refreshMic();
-  if (focus) byId("word").focus();
+  if (focus) byId(showEnglish.checked ? "word" : "meaning").focus();
+}
+
+function togglePause() {
+  if (byId("question").hidden) return;
+  if (pausedAt === null) {
+    pausedAt = performance.now();
+    clearInterval(roundTimer);
+    updateRoundTime();
+    cancelAdvance();
+    stopListening();
+    byId("listen").disabled = true;
+    byId("next").disabled = true;
+    pauseButton.textContent = "继续";
+    feedback("练习已暂停。");
+    return;
+  }
+
+  roundStartedAt += performance.now() - pausedAt;
+  pausedAt = null;
+  roundTimer = setInterval(updateRoundTime, 250);
+  byId("next").disabled = false;
+  pauseButton.textContent = "暂停";
+  if (scored) {
+    advance();
+  } else {
+    refreshMic();
+    listen();
+  }
 }
 
 function normalize(text) {
@@ -291,7 +326,7 @@ function cancelAdvance() {
 }
 
 function advance() {
-  if (!scored || byId("question").hidden) return;
+  if (pausedAt !== null || !scored || byId("question").hidden) return;
   cancelAdvance();
   if (index + 1 === queue.length) {
     showResult();
@@ -304,7 +339,7 @@ function advance() {
 
 function listen() {
   const button = byId("listen");
-  if (button.disabled || active || scored) return;
+  if (pausedAt !== null || button.disabled || active || scored || byId("question").hidden) return;
   const tencent = provider.value === "tencent";
   const recognizer = tencent ? new TencentRecognition() : new Recognition();
   recognizer.lang = "en-US";
@@ -407,7 +442,7 @@ function switchPractice(selected, type) {
 
 provider.addEventListener("change", () => {
   byId("provider-note").hidden = provider.value !== "tencent";
-  if (scored || byId("question").hidden) return;
+  if (pausedAt !== null || scored || byId("question").hidden) return;
   stopListening();
   refreshMic();
 });
@@ -441,6 +476,10 @@ byId("start").addEventListener("click", () => {
   beginRound();
 });
 mic.addEventListener("click", listen);
+pauseButton.addEventListener("click", togglePause);
+showEnglish.addEventListener("change", () => {
+  byId("word").hidden = !showEnglish.checked;
+});
 byId("next").addEventListener("click", advance);
 byId("retry").addEventListener("click", () => {
   if (!wrong.length) return;

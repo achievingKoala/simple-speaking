@@ -15,6 +15,7 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 .center{text-align:center;padding-top:31px}.word{font-size:clamp(26px,5vw,43px);line-height:1.15;margin:10px 0;color:#281942;overflow-wrap:anywhere;letter-spacing:-.035em}.meaning{margin:0 0 22px;color:#655776}.primary,.secondary{border-radius:11px;padding:10px 16px;min-height:44px;font-weight:750;border:1px solid transparent}.primary{background:#653bb8;color:white;display:inline-flex;align-items:center;justify-content:center;gap:8px}.primary:hover:enabled{background:#532da1}.secondary{background:#f6f1fe;color:#5b389c;border-color:#e8ddf8}.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.feedback{margin:13px auto 0;min-height:24px;font-size:14px;color:#655776;overflow-wrap:anywhere}.feedback[data-kind=correct]{color:#176540}.feedback[data-kind=wrong]{color:#a33635}.note{margin:17px 0 0;text-align:center;font-size:12px;color:#655a74}.wrong-list{list-style:none;margin:16px 0;padding:0;max-height:230px;overflow:auto;text-align:left}.wrong-list li{padding:7px 9px;border-bottom:1px solid #efe9f6;font-size:14px}
 @media(max-width:690px){.shell{padding-inline:15px}main{padding-block:22px}.layout{grid-template-columns:1fr;gap:12px}.intro,.panel{padding:17px}.topic-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}.topic{margin:0;padding:7px;gap:6px}.topic-icon{width:26px;height:28px}.totals{gap:9px}.topics h2{margin-bottom:10px}.center{padding-top:24px}}
 .topic-list{display:grid;gap:8px}.topic-card{padding:10px;border:1px solid #ede7f5;border-radius:13px}.topic-heading{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}.topic-heading small{display:block;margin-top:2px;color:#625773;font-weight:400}.topic-icon{flex-shrink:0}.practice-types{display:flex;gap:6px;margin-top:8px}.practice-types button{flex:1;padding:6px;font-size:14px;background:white}.practice-types button:hover{background:#f3ecff;border-color:#cdb9ef}.practice-types button[aria-pressed=true]{background:#653bb8;border-color:#653bb8;color:white}
+.preview{padding-top:14px}.preview h2{margin:0;font-size:20px}.preview-list{margin:10px 0 16px;padding:0;list-style:none}.preview-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:7px 0;border-bottom:1px solid #efe9f6;font-size:14px}.preview-list span{color:#655776}
 </style>
 </head>
 <body>
@@ -33,19 +34,26 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <option value="tencent" selected>腾讯云识别</option>
 <option value="browser">浏览器识别</option>
 </select>
-<p id="provider-note" class="subtle" hidden>短录音会通过本站发送到腾讯云进行识别。</p>
+<p id="provider-note" class="subtle">短录音会通过本站发送到腾讯云进行识别。</p>
 </div>
 </aside>
 <section class="panel practice" aria-label="口语练习">
-<div class="row"><span class="label" id="round-label"></span><span class="counter" id="counter"></span></div>
-<progress id="progress" class="progress" aria-label="本轮完成进度"></progress>
-<div id="question" class="center">
-<div class="eyebrow">请读出下方词条</div>
-<h2 id="word" class="word" lang="en" tabindex="-1"></h2><p id="meaning" class="meaning"></p>
+<div class="row"><span class="label" id="round-label"></span><span class="counter" id="round-timer" hidden>用时 <span id="round-time">00:00</span></span><span class="counter" id="counter"></span></div>
+<p class="subtle"><label><input id="show-english" type="checkbox" checked> 显示英文题目</label></p>
+<progress id="progress" class="progress" aria-label="本轮完成进度" hidden></progress>
+<div id="preview" class="preview" hidden>
+<h2 id="preview-title" tabindex="-1">本轮词表</h2>
+<ul id="preview-list" class="preview-list"></ul>
+<button class="primary" id="start" type="button">开始练习</button>
+</div>
+<div id="question" class="center" hidden>
+<div class="eyebrow">请用英文朗读</div>
+<h2 id="word" class="word" lang="en" tabindex="-1"></h2><p id="meaning" class="meaning" tabindex="-1"></p>
 <p id="word-stats" class="subtle" aria-label="当前词条的练习记录"></p>
 <div class="actions">
 <button class="primary" id="listen" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2m-7 9v3m-3 0h6"/></svg><span id="listen-label">开始朗读</span></button>
 <button class="primary" id="next" type="button" hidden>下一题</button>
+<button class="secondary" id="pause" type="button">暂停</button>
 </div>
 <p class="feedback" id="feedback" role="status"></p>
 <p class="note">语音转写与目标词条匹配即为正确。练习次数按有效识别结果累计。</p>
@@ -53,6 +61,7 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <div id="result" class="center" hidden>
 <h2 class="word" id="result-title" tabindex="-1">练习完成</h2>
 <p class="meaning" id="result-score"></p>
+<p class="subtle" id="result-time"></p>
 <ul id="wrong-list" class="wrong-list" aria-label="本轮错词"></ul>
 <div class="actions"><button class="primary" id="retry" type="button">重练错词</button><button class="secondary" id="restart" type="button">再练一轮</button></div>
 </div>
