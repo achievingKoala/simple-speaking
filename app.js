@@ -69,6 +69,7 @@ const byId = id => document.getElementById(id);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const provider = byId("provider");
 const storageKey = "speak-daily-stats-v1";
+const roundLogKey = "speak-daily-rounds-v1";
 const roundSize = 10;
 const milestoneInterval = 50;
 const practiceLabels = { word: "单词", phrase: "词组" };
@@ -87,23 +88,30 @@ let scored = false;
 let active = null;
 let advanceTimer;
 let roundStartedAt;
-let roundTimer;
+let roundIsReview = false;
 let pausedAt = null;
 const showEnglish = byId("show-english");
 const pauseButton = byId("pause");
 
-function updateRoundTime() {
-  const elapsed = Math.floor(((pausedAt ?? performance.now()) - roundStartedAt) / 1000);
-  const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
-  const seconds = String(elapsed % 60).padStart(2, "0");
-  byId("round-time").textContent = `${minutes}:${seconds}`;
-}
-
-function stopRoundTimer() {
-  if (roundTimer === undefined) return;
-  updateRoundTime();
-  clearInterval(roundTimer);
-  roundTimer = undefined;
+function saveRoundLog() {
+  const entry = {
+    completedAt: new Date().toISOString(),
+    topic: topics[topicIndex].name,
+    type: practiceType,
+    review: roundIsReview,
+    total: queue.length,
+    correct: right,
+    wrong: wrong.length,
+    durationMs: Math.round(performance.now() - roundStartedAt)
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem(roundLogKey));
+    const rounds = Array.isArray(saved) ? saved : [];
+    rounds.push(entry);
+    localStorage.setItem(roundLogKey, JSON.stringify(rounds));
+  } catch {
+    byId("storage-note").textContent = "无法保存本轮练习日志。";
+  }
 }
 
 function validCounts(counts) {
@@ -165,7 +173,6 @@ function stopListening() {
   active = null;
   if (!session) return;
   clearTimeout(session.timeout);
-  clearInterval(session.clock);
   try {
     session.recognizer.abort();
   } catch {
@@ -180,9 +187,7 @@ function pickRoundEntries(topic, type) {
 }
 
 function prepareRound(selected, type, missed = null, focus = true) {
-  stopRoundTimer();
   pausedAt = null;
-  byId("round-timer").hidden = true;
   cancelAdvance();
   stopListening();
   topicIndex = selected;
@@ -199,7 +204,7 @@ function prepareRound(selected, type, missed = null, focus = true) {
   });
   byId("round-label").textContent = `${topics[selected].name} · ${practiceLabels[type]}${review ? " · 错词重练" : ""}`;
   if (review) {
-    beginRound();
+    beginRound(true);
     return;
   }
   byId("counter").textContent = `${queue.length} 个`;
@@ -220,12 +225,10 @@ function prepareRound(selected, type, missed = null, focus = true) {
   if (focus) byId("preview-title").focus();
 }
 
-function beginRound() {
+function beginRound(review = false) {
   pauseButton.textContent = "暂停";
+  roundIsReview = review;
   roundStartedAt = performance.now();
-  updateRoundTime();
-  byId("round-timer").hidden = false;
-  roundTimer = setInterval(updateRoundTime, 250);
   byId("preview").hidden = true;
   byId("progress").hidden = false;
   renderQuestion(true);
@@ -255,7 +258,6 @@ function togglePause() {
   if (byId("question").hidden) return;
   if (pausedAt === null) {
     pausedAt = performance.now();
-    stopRoundTimer();
     cancelAdvance();
     stopListening();
     byId("listen").disabled = true;
@@ -267,7 +269,6 @@ function togglePause() {
 
   roundStartedAt += performance.now() - pausedAt;
   pausedAt = null;
-  roundTimer = setInterval(updateRoundTime, 250);
   byId("next").disabled = false;
   pauseButton.textContent = "暂停";
   if (scored) {
@@ -387,7 +388,6 @@ function listen() {
   session.timeout = setTimeout(() => finish("麦克风启动超时，请检查权限后重试。"), 20000);
   function showProcessing() {
     label.textContent = "正在识别…";
-    clearInterval(session.clock);
     clearTimeout(session.timeout);
     session.timeout = setTimeout(() => finish("本次未收到识别结果，请再说一次。"), tencent ? 15000 : 3000);
   }
@@ -395,12 +395,8 @@ function listen() {
   recognizer.onstart = () => {
     if (active !== session) return;
     clearTimeout(session.timeout);
-    const deadline = Date.now() + seconds * 1000;
-    label.textContent = `正在聆听 · ${seconds} 秒`;
-    feedback("请读出卡片上的英文。");
-    session.clock = setInterval(() => {
-      label.textContent = `正在聆听 · ${Math.max(0, Math.ceil((deadline - Date.now()) / 1000))} 秒`;
-    }, 200);
+    label.textContent = "正在聆听…";
+    feedback("请用英文朗读。");
     session.timeout = setTimeout(() => {
       showProcessing();
       try {
@@ -431,9 +427,7 @@ function listen() {
 }
 
 function showResult() {
-  stopRoundTimer();
-  byId("result-time").textContent = `本轮用时 ${byId("round-time").textContent}`;
-  byId("round-timer").hidden = true;
+  saveRoundLog();
   byId("question").hidden = true;
   byId("result").hidden = false;
   byId("counter").textContent = `${queue.length} / ${queue.length}`;
