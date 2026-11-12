@@ -30,13 +30,30 @@
 
 腾讯云接口会消耗账号额度。同源校验用于阻止其他网页直接跨站调用，公开站点的接口仍可被直接请求。公开分享时可用 Cloudflare Access 限定试用用户，或配置接口限流。
 
-## 本地预览
+## 本地启动
 
-浏览器识别可沿用静态预览。联调腾讯云时，在项目根目录创建本地 `.dev.vars` 文件，写入相同名称的两个变量，每行一个 `变量名=值`，然后运行：
+### 浏览器识别
+
+打开终端，运行：
 
 ```sh
+cd ~/Desktop/ai-coding/simple-speaking
 sh build-pages.sh
-npx wrangler pages dev dist
+python3 -m http.server 18766 --bind 127.0.0.1 --directory dist
 ```
 
-打开 Wrangler 打印的本地地址。练习记录按浏览器和站点地址保存。
+在 Chrome 打开 [http://127.0.0.1:18766/](http://127.0.0.1:18766/)，选择「浏览器识别」，点击「开始朗读」并允许使用麦克风。这个启动方式只需要 Python 3。
+
+### 腾讯云识别
+
+用 Node.js 22 或更新版本启动本地服务。项目根目录的 `.env` 需要配置 `TENCENT_SECRET_ID` 和 `TENCENT_SECRET_KEY`，每行一个 `变量名=值`。然后运行：
+
+```sh
+cd ~/Desktop/ai-coding/simple-speaking
+sh build-pages.sh
+node --env-file=.env local-server.mjs
+```
+
+在 Chrome 打开 [http://127.0.0.1:18765/](http://127.0.0.1:18765/)，选择「腾讯云识别」。本地服务直接加载同一份识别后端，无需安装 Wrangler 或 npm 依赖。如果端口已被当前本地服务占用，可以继续使用已打开的网址，或在启动命令末尾加另一个端口号。
+
+保持启动服务的终端窗口开启，按 `Ctrl+C` 停止。修改源文件后重新运行 `sh build-pages.sh`，再刷新网页。练习记录按浏览器和站点地址保存。
