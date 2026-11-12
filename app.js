@@ -35,6 +35,7 @@ const topics = [
 
 const byId = id => document.getElementById(id);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const provider = byId("provider");
 const storageKey = "speak-daily-stats-v1";
 const seconds = 8;
 const feedbackDelay = 1400;
@@ -90,6 +91,21 @@ function feedback(message, kind = "") {
   status.dataset.kind = kind;
 }
 
+function refreshMic() {
+  const tencent = provider.value === "tencent";
+  byId("provider-note").hidden = !tencent;
+  const issue = tencent
+    ? (location.protocol === "file:" || !window.isSecureContext
+      ? "请通过 Cloudflare 的 HTTPS 地址或 Wrangler 本地预览使用腾讯云识别。"
+      : !RecordingContext || !navigator.mediaDevices?.getUserMedia
+        ? "当前浏览器不支持腾讯云录音，请换用支持麦克风的浏览器。"
+        : "")
+    : (!Recognition ? "当前浏览器未提供语音识别，请切换识别方式或使用 Chrome。" : "");
+  byId("listen").disabled = Boolean(issue);
+  byId("listen-label").textContent = "开始朗读";
+  feedback(issue || "点击开始朗读，之后会自动进入下一题。");
+}
+
 function stopListening() {
   const session = active;
   active = null;
@@ -130,9 +146,7 @@ function renderQuestion(focus) {
   byId("word-stats").textContent = wordAccuracy(word);
   byId("next").hidden = true;
   byId("listen").hidden = false;
-  byId("listen").disabled = !Recognition;
-  byId("listen-label").textContent = "开始朗读";
-  feedback(Recognition ? "点击开始朗读，之后会自动进入下一题。" : "当前浏览器未提供语音识别，请在支持语音识别的 Chrome 中打开。");
+  refreshMic();
   if (focus) byId("word").focus();
 }
 
@@ -203,14 +217,15 @@ function advance() {
 }
 
 function listen() {
-  if (!Recognition || active || scored) return;
-  const recognizer = new Recognition();
+  const button = byId("listen");
+  if (button.disabled || active || scored) return;
+  const tencent = provider.value === "tencent";
+  const recognizer = tencent ? new TencentRecognition() : new Recognition();
   recognizer.lang = "en-US";
   recognizer.continuous = false;
   recognizer.interimResults = false;
   const session = { recognizer };
   active = session;
-  const button = byId("listen");
   const label = byId("listen-label");
   button.disabled = true;
   label.textContent = "正在开启麦克风…";
@@ -229,6 +244,13 @@ function listen() {
   }
 
   session.timeout = setTimeout(() => finish("麦克风启动超时，请检查权限后重试。"), 20000);
+  function showProcessing() {
+    label.textContent = "正在识别…";
+    clearInterval(session.clock);
+    clearTimeout(session.timeout);
+    session.timeout = setTimeout(() => finish("本次未收到识别结果，请再说一次。"), tencent ? 15000 : 3000);
+  }
+  recognizer.onprocessing = showProcessing;
   recognizer.onstart = () => {
     if (active !== session) return;
     clearTimeout(session.timeout);
@@ -239,9 +261,7 @@ function listen() {
       label.textContent = `正在聆听 · ${Math.max(0, Math.ceil((deadline - Date.now()) / 1000))} 秒`;
     }, 200);
     session.timeout = setTimeout(() => {
-      label.textContent = "正在识别…";
-      clearInterval(session.clock);
-      session.timeout = setTimeout(() => finish("本次未收到识别结果，请再说一次。"), 3000);
+      showProcessing();
       try {
         recognizer.stop();
       } catch {
@@ -260,7 +280,7 @@ function listen() {
       network: "语音识别服务连接失败，请检查网络后重试。",
       "no-speech": "未听到朗读，请再说一次。"
     };
-    finish(errors[event.error] ?? "语音识别未完成，请重试。");
+    finish(event.message || errors[event.error] || "语音识别未完成，请重试。");
   };
   try {
     recognizer.start();
@@ -288,6 +308,12 @@ function showResult() {
 }
 
 const mic = byId("listen");
+provider.addEventListener("change", () => {
+  byId("provider-note").hidden = provider.value !== "tencent";
+  if (scored || byId("question").hidden) return;
+  stopListening();
+  refreshMic();
+});
 const topicButtons = topics.map((topic, id) => {
   const button = document.createElement("button");
   button.type = "button";
@@ -316,9 +342,7 @@ window.addEventListener("pagehide", () => {
   cancelAdvance();
   if (!active) return;
   stopListening();
-  mic.disabled = false;
-  byId("listen-label").textContent = "开始朗读";
-  feedback("点击麦克风后开始朗读，限时 8 秒。");
+  refreshMic();
 });
 showStats();
 startRound(0, null, false);

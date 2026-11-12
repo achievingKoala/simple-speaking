@@ -24,7 +24,17 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <main class="shell">
 <section class="intro"><div class="eyebrow">IELTS SPEAKING</div><h1>雅思口语词汇练习</h1><p>选择常用话题，跟着词卡开口读。每轮 20 个词或短语。</p></section>
 <div class="layout">
-<aside class="panel topics"><h2>选择话题</h2><div id="topics" class="topic-list"></div></aside>
+<aside class="panel topics">
+<h2>选择话题</h2><div id="topics" class="topic-list"></div>
+<div style="margin-top:18px">
+<label for="provider" class="label">语音识别方式</label>
+<select id="provider" class="topic" aria-describedby="provider-note">
+<option value="browser">浏览器识别</option>
+<option value="tencent">腾讯云识别</option>
+</select>
+<p id="provider-note" class="subtle" hidden>短录音会通过本站发送到腾讯云进行识别。</p>
+</div>
+</aside>
 <section class="panel practice" aria-label="口语练习">
 <div class="row"><span class="label" id="round-label"></span><span class="counter" id="counter"></span></div>
 <progress id="progress" class="progress" aria-label="本轮完成进度"></progress>
@@ -49,6 +59,7 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 </div>
 <p class="note" id="storage-note">练习统计保存在当前浏览器。</p>
 </main>
+<script src="tencent-recognition.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>
