@@ -245,6 +245,11 @@ function beginRound(review = false) {
   listen();
 }
 
+function updateAnswerVisibility() {
+  const answeredIncorrectly = scored && wrong.at(-1) === queue[index];
+  byId("word").hidden = !showEnglish.checked && !answeredIncorrectly;
+}
+
 function renderQuestion(focus) {
   scored = false;
   const [word, meaning] = queue[index];
@@ -254,7 +259,7 @@ function renderQuestion(focus) {
   byId("progress").max = queue.length;
   byId("progress").value = index;
   byId("word").textContent = word;
-  byId("word").hidden = !showEnglish.checked;
+  updateAnswerVisibility();
   byId("meaning").textContent = meaning;
   byId("word-stats").textContent = wordAccuracy(word);
   byId("next").hidden = true;
@@ -321,6 +326,7 @@ function score(transcript) {
   } else {
     wrong.push(word);
   }
+  updateAnswerVisibility();
   try {
     localStorage.setItem(storageKey, JSON.stringify(stats));
   } catch {
@@ -523,9 +529,7 @@ pauseButton.addEventListener("click", togglePause);
 byId("dismiss-break").addEventListener("click", () => {
   byId("break-reminder").hidden = true;
 });
-showEnglish.addEventListener("change", () => {
-  byId("word").hidden = !showEnglish.checked;
-});
+showEnglish.addEventListener("change", updateAnswerVisibility);
 byId("next").addEventListener("click", advance);
 byId("retry").addEventListener("click", () => {
   if (!wrong.length) return;
