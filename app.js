@@ -7,7 +7,9 @@ const topics = [
       ["salary", "薪水"], ["workload", "工作量"], ["schedule", "日程安排"], ["teamwork", "团队合作"],
       ["qualification", "资格，资历"], ["profession", "职业"], ["job interview", "求职面试"],
       ["career path", "职业发展路径"], ["work experience", "工作经验"], ["part-time job", "兼职工作"],
-      ["meet a deadline", "赶上截止日期"], ["work from home", "在家办公"]
+      ["meet a deadline", "赶上截止日期"], ["work from home", "在家办公"],
+      ["take notes", "记笔记"], ["give a presentation", "做演示汇报"],
+      ["apply for a job", "申请工作"], ["gain practical experience", "积累实践经验"]
     ]
   },
   {
@@ -15,9 +17,10 @@ const topics = [
     words: [
       ["routine", "日常惯例"], ["commute", "通勤"], ["neighborhood", "社区，街区"], ["apartment", "公寓"],
       ["rent", "租金；租用"], ["laundry", "要洗的衣物；洗衣"], ["groceries", "食品杂货"], ["recipe", "食谱"],
-      ["breakfast", "早餐"], ["exercise", "锻炼"], ["housework", "家务"], ["errands", "外出要办的事"],
+      ["breakfast", "早餐"], ["exercise", "锻炼"], ["housework", "家务"], ["errand", "外出要办的事"],
       ["budget", "预算"], ["convenient", "方便的"], ["rush hour", "交通高峰期"], ["get up early", "早起"],
-      ["take a break", "休息一下"], ["eat out", "外出就餐"], ["do the dishes", "洗碗"], ["go for a walk", "去散步"]
+      ["take a break", "休息一下"], ["eat out", "外出就餐"], ["do the dishes", "洗碗"], ["go for a walk", "去散步"],
+      ["do the laundry", "洗衣服"], ["cook dinner", "做晚饭"], ["catch the bus", "赶公交车"], ["go to bed", "上床睡觉"]
     ]
   },
   {
@@ -28,7 +31,8 @@ const topics = [
       ["itinerary", "旅行行程"], ["souvenir", "纪念品"], ["scenery", "风景"], ["sightseeing", "观光"],
       ["passport", "护照"], ["luggage", "行李"], ["local cuisine", "当地美食"], ["road trip", "公路旅行"],
       ["tourist attraction", "旅游景点"], ["take up a hobby", "培养一项爱好"], ["book a hotel", "预订酒店"],
-      ["travel abroad", "出国旅行"]
+      ["travel abroad", "出国旅行"], ["take photos", "拍照"], ["go camping", "去露营"],
+      ["pack a suitcase", "收拾行李箱"], ["go on a guided tour", "参加有导游的游览"]
     ]
   }
 ];
@@ -37,12 +41,15 @@ const byId = id => document.getElementById(id);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const provider = byId("provider");
 const storageKey = "speak-daily-stats-v1";
+const roundSize = 10;
+const practiceLabels = { word: "单词", phrase: "词组" };
 const seconds = 8;
 const feedbackDelay = 1400;
 const successSound = new Audio("./complete.wav");
 successSound.preload = "auto";
 let stats = { correct: 0, attempts: 0, words: {} };
 let topicIndex = 0;
+let practiceType = "word";
 let queue = [];
 let index = 0;
 let right = 0;
@@ -119,16 +126,27 @@ function stopListening() {
   }
 }
 
-function startRound(selected, missed = null, focus = true) {
+function pickRoundEntries(topic, type) {
+  const entries = topic.words.filter(([word]) => /\s/.test(word.trim()) === (type === "phrase"));
+  for (let i = entries.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [entries[i], entries[j]] = [entries[j], entries[i]];
+  }
+  return entries.slice(0, roundSize);
+}
+
+function startRound(selected, type, missed = null, focus = true) {
   cancelAdvance();
   stopListening();
   topicIndex = selected;
+  practiceType = type;
   review = missed !== null;
-  queue = [...(missed ?? topics[selected].words)];
+  queue = missed ? [...missed] : pickRoundEntries(topics[selected], type);
   index = 0;
   right = 0;
   wrong = [];
   topicButtons.forEach((button, id) => button.setAttribute("aria-pressed", id === selected));
+  practiceButtons.forEach(button => button.setAttribute("aria-pressed", button.dataset.practice === type));
   renderQuestion(focus);
 }
 
@@ -137,7 +155,7 @@ function renderQuestion(focus) {
   const [word, meaning] = queue[index];
   byId("result").hidden = true;
   byId("question").hidden = false;
-  byId("round-label").textContent = topics[topicIndex].name + (review ? " · 错词重练" : "");
+  byId("round-label").textContent = `${topics[topicIndex].name} · ${practiceLabels[practiceType]}${review ? " · 错词重练" : ""}`;
   byId("counter").textContent = `${index + 1} / ${queue.length}`;
   byId("progress").max = queue.length;
   byId("progress").value = index;
@@ -308,6 +326,13 @@ function showResult() {
 }
 
 const mic = byId("listen");
+function switchPractice(selected, type) {
+  if (selected === topicIndex && type === practiceType) return;
+  if (!byId("question").hidden && (active || index > 0 || scored)
+    && !window.confirm("切换练习会结束当前这一轮，已记录的次数会保留。继续切换？")) return;
+  startRound(selected, type);
+}
+
 provider.addEventListener("change", () => {
   byId("provider-note").hidden = provider.value !== "tencent";
   if (scored || byId("question").hidden) return;
@@ -319,23 +344,23 @@ const topicButtons = topics.map((topic, id) => {
   button.type = "button";
   button.className = "topic transition-colors";
   button.innerHTML = `<span class="topic-icon" aria-hidden="true">${topic.icon}</span><span><b>${topic.name}</b><small lang="en">${topic.english}</small></span>`;
-  button.addEventListener("click", () => {
-    if (id === topicIndex) return;
-    if (!byId("question").hidden && (index > 0 || scored) && !window.confirm("切换话题会结束当前练习，已记录的次数会保留。继续切换？")) return;
-    startRound(id);
-  });
+  button.addEventListener("click", () => switchPractice(id, practiceType));
   byId("topics").append(button);
   return button;
+});
+const practiceButtons = [...document.querySelectorAll("[data-practice]")];
+practiceButtons.forEach(button => {
+  button.addEventListener("click", () => switchPractice(topicIndex, button.dataset.practice));
 });
 
 mic.addEventListener("click", listen);
 byId("next").addEventListener("click", advance);
 byId("retry").addEventListener("click", () => {
-  startRound(topicIndex, wrong);
+  startRound(topicIndex, practiceType, wrong);
   listen();
 });
 byId("restart").addEventListener("click", () => {
-  startRound(topicIndex);
+  startRound(topicIndex, practiceType);
   listen();
 });
 window.addEventListener("pagehide", () => {
@@ -345,4 +370,4 @@ window.addEventListener("pagehide", () => {
   refreshMic();
 });
 showStats();
-startRound(0, null, false);
+startRound(0, practiceType, null, false);
