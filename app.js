@@ -85,16 +85,16 @@ const topics = [
       ["chart", "图表"], ["graph", "示意图，统计图"], ["table", "表格"],
       ["number", "数量"], ["amount", "量，用于不可数名词"],
       ["percentage", "百分比"], ["proportion", "比例"], ["average", "平均的，平均值"],
-      ["the chart shows", "图表展示了"],
-      ["the graph illustrates", "图表说明了"],
-      ["the table compares", "表格比较了"],
-      ["the number of visitors", "访客人数"],
-      ["the amount of water used", "用水量"],
-      ["the percentage of households", "家庭所占的百分比"],
-      ["the proportion of students", "学生所占的比例"],
-      ["the average number of trips", "平均出行次数"],
-      ["between January and June", "在一月至六月之间"],
-      ["over a ten-year period", "在十年期间"]
+      ["line graph", "折线图"],
+      ["bar chart", "柱状图"],
+      ["pie chart", "饼图"],
+      ["number of", "……的数量"],
+      ["amount of", "……的量，用于不可数名词"],
+      ["percentage of", "……的百分比"],
+      ["proportion of", "……的比例"],
+      ["average number", "平均数量"],
+      ["from January", "从一月开始"],
+      ["over ten years", "在十年期间"]
     ]
   },
   {
@@ -104,16 +104,35 @@ const topics = [
       ["downward", "向下的"], ["stable", "稳定的"], ["pattern", "变化模式"],
       ["highest", "最高的"], ["lowest", "最低的"], ["increase", "增长，增幅"],
       ["share", "份额，占比"],
-      ["on the whole", "总体来看"],
-      ["showed an upward trend", "呈上升趋势"],
-      ["showed a downward trend", "呈下降趋势"],
+      ["in general", "总体来看"],
+      ["upward trend", "上升趋势"],
+      ["downward trend", "下降趋势"],
       ["remained relatively stable", "保持相对稳定"],
-      ["followed a similar pattern", "呈现相似的变化规律"],
-      ["had the highest figure", "数值最高"],
-      ["had the lowest figure", "数值最低"],
-      ["saw the largest increase", "增幅最大"],
-      ["accounted for the largest share", "所占份额最大"],
+      ["similar pattern", "相似的变化规律"],
+      ["highest figure", "最高数值"],
+      ["lowest figure", "最低数值"],
+      ["largest increase", "最大增幅"],
+      ["largest share", "最大份额"],
       ["throughout the period", "在整个时期内"]
+    ]
+  },
+  {
+    name: "细节", english: "Details", icon: "📈", writing: true,
+    words: [
+      ["rise", "上升"], ["drop", "下降"], ["peak", "达到峰值"],
+      ["fluctuate", "波动"], ["steadily", "稳步地"], ["sharply", "急剧地"],
+      ["overtake", "超过原本领先的对象"], ["gap", "差距"],
+      ["whereas", "而，用于对比"], ["respectively", "分别，按顺序对应"],
+      ["stood at", "数值为……"],
+      ["rose to", "上升到……"],
+      ["fell by", "下降了……"],
+      ["peaked at", "在……达到峰值"],
+      ["fluctuated between", "在……之间波动"],
+      ["percentage points", "百分点"],
+      ["twice as high", "是……的两倍"],
+      ["compared with", "与……相比"],
+      ["the gap widened", "差距扩大"],
+      ["the gap narrowed", "差距缩小"]
     ]
   }
 ];
@@ -560,6 +579,19 @@ const topicPracticeButtons = topics.map((topic, id) => {
   byId(topic.writing ? "writing-topics" : "topics").append(card);
   return buttons;
 });
+
+const speakingTopicsButton = byId("show-speaking-topics");
+const writingTopicsButton = byId("show-writing-topics");
+
+function showTopicCategory(writing) {
+  byId("topics").hidden = writing;
+  byId("writing-topics").hidden = !writing;
+  speakingTopicsButton.setAttribute("aria-pressed", String(!writing));
+  writingTopicsButton.setAttribute("aria-pressed", String(writing));
+}
+
+speakingTopicsButton.addEventListener("click", () => showTopicCategory(false));
+writingTopicsButton.addEventListener("click", () => showTopicCategory(true));
 
 byId("shuffle-preview").addEventListener("click", () => {
   if (byId("preview").hidden) return;

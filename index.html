@@ -15,7 +15,12 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 .center{text-align:center;padding-top:31px}.word{font-size:clamp(26px,5vw,43px);line-height:1.15;margin:10px 0;color:#281942;overflow-wrap:anywhere;letter-spacing:-.035em}.meaning{margin:0 0 22px;color:#655776}.primary,.secondary{border-radius:11px;padding:10px 16px;min-height:44px;font-weight:750;border:1px solid transparent}.primary{background:#653bb8;color:white;display:inline-flex;align-items:center;justify-content:center;gap:8px}.primary:hover:enabled{background:#532da1}.secondary{background:#f6f1fe;color:#5b389c;border-color:#e8ddf8}.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.feedback{margin:13px auto 0;min-height:24px;font-size:14px;color:#655776;overflow-wrap:anywhere}.feedback[data-kind=correct]{color:#176540}.feedback[data-kind=wrong]{color:#a33635}.note{margin:17px 0 0;text-align:center;font-size:12px;color:#655a74}.wrong-list{list-style:none;margin:16px 0;padding:0;max-height:230px;overflow:auto;text-align:left}.wrong-list li{padding:7px 9px;border-bottom:1px solid #efe9f6;font-size:14px}
 @media(max-width:690px){.shell{padding-inline:15px}main{padding-block:22px}.layout{grid-template-columns:1fr;gap:12px}.intro,.panel{padding:17px}.topic-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}.topic{margin:0;padding:7px;gap:6px}.topic-icon{width:26px;height:28px}.totals{gap:9px}.topics h2{margin-bottom:10px}.center{padding-top:24px}}
 .topic-list{display:grid;gap:8px}.topic-card{padding:10px;border:1px solid #ede7f5;border-radius:13px}.topic-heading{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}.topic-heading small{display:block;margin-top:2px;color:#625773;font-weight:400}.topic-icon{flex-shrink:0}.practice-types{display:flex;gap:6px;margin-top:8px}.practice-types button{flex:1;padding:6px;font-size:14px;background:white}.practice-types button:hover{background:#f3ecff;border-color:#cdb9ef}.practice-types button[aria-pressed=true]{background:#653bb8;border-color:#653bb8;color:white}
-.topics #writing-title{margin-top:18px}
+.topic-switch{margin:0 0 14px}
+#topics{overflow-y:auto;scrollbar-gutter:stable;padding:3px}
+#topics .topic-card{min-width:0}
+#topics .topic-heading span:last-child{overflow-wrap:anywhere}
+@media(min-width:691px){.topics{contain:size;display:flex;flex-direction:column}.topics>*{flex-shrink:0}.topics .topic-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:3px;align-content:start}}
+@media(max-width:690px){#topics{max-height:220px}}
 .preview{padding-top:14px}.preview h2{margin:0;font-size:20px}.preview-list{margin:10px 0 16px;padding:0;list-style:none}.preview-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:7px 0;border-bottom:1px solid #efe9f6;font-size:14px}.preview-list span{color:#655776}
 .break-reminder{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px;padding:10px 12px;border-radius:11px;background:#f6f1fe;color:#5b389c;font-size:14px}.break-reminder p{margin:0}
 .preview-header{flex-wrap:wrap}.preview-controls,.preview-details{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.preview-count{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -30,8 +35,13 @@ main{padding-block:40px 32px}.intro{padding:30px 32px;border:1px solid #e4d8fa;b
 <section class="intro"><div class="eyebrow">IELTS VOCABULARY</div><h1>雅思词汇练习</h1><p>选择口语话题或小作文段落，单词和词组分开练，每轮 10 个。</p></section>
 <div class="layout">
 <aside class="panel topics">
-<h2>雅思口语</h2><div id="topics" class="topic-list"></div>
-<h2 id="writing-title">小作文 · 数据图表</h2><div id="writing-topics" class="topic-list"></div>
+<h2>选择练习</h2>
+<div class="practice-types topic-switch" role="group" aria-label="练习分类">
+<button class="secondary" id="show-speaking-topics" type="button" aria-controls="topics" aria-pressed="true">雅思口语</button>
+<button class="secondary" id="show-writing-topics" type="button" aria-controls="writing-topics" aria-pressed="false">小作文</button>
+</div>
+<div id="topics" class="topic-list" role="region" aria-label="雅思口语话题" tabindex="0"></div>
+<div id="writing-topics" class="topic-list" hidden></div>
 <div style="margin-top:18px">
 <label for="provider" class="label">语音识别方式</label>
 <select id="provider" class="topic">
