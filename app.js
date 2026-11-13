@@ -81,58 +81,76 @@ const topics = [
   {
     name: "引言", english: "Introduction", icon: "📝", writing: true,
     words: [
-      ["illustrate", "图示，展示"], ["compare", "比较"],
-      ["chart", "图表"], ["graph", "示意图，统计图"], ["table", "表格"],
-      ["number", "数量"], ["amount", "量，用于不可数名词"],
-      ["percentage", "百分比"], ["proportion", "比例"], ["average", "平均的，平均值"],
-      ["line graph", "折线图"],
-      ["bar chart", "柱状图"],
-      ["pie chart", "饼图"],
-      ["number of", "……的数量"],
-      ["amount of", "……的量，用于不可数名词"],
-      ["percentage of", "……的百分比"],
-      ["proportion of", "……的比例"],
-      ["average number", "平均数量"],
-      ["from January", "从一月开始"],
-      ["over ten years", "在十年期间"]
+      ["illustrate", "图示，展示", "The two charts illustrate changes in household spending."],
+      ["compare", "比较", "The charts compare water use in three countries."],
+      ["chart", "图表", "The chart shows how people travelled to work in 2020."],
+      ["graph", "示意图，统计图", "The graph shows changes in monthly rainfall."],
+      ["table", "表格", "The table shows average salaries in five industries."],
+      ["number", "数量", "The number of visitors is given for each month."],
+      ["amount", "量，用于不可数名词", "The chart shows the amount of electricity used by households."],
+      ["percentage", "百分比", "The graph shows the percentage of households with internet access."],
+      ["proportion", "比例", "The chart compares the proportion of adults who cycle to work in three cities."],
+      ["average", "平均的，平均值", "The table shows the average age of residents in each area."],
+      ["line graph", "折线图", "The line graph shows changes in rail use from 2010 to 2020."],
+      ["bar chart", "柱状图", "The bar chart compares bus use in four cities."],
+      ["pie chart", "饼图", "The pie chart shows how households allocated their spending in 2020."],
+      ["number of", "……的数量", "The table shows the number of students in each course."],
+      ["amount of", "……的量，用于不可数名词", "The graph shows the amount of water used each month."],
+      ["percentage of", "……的百分比", "The chart compares the percentage of homes with solar panels in three regions."],
+      ["proportion of", "……的比例", "The graph shows the proportion of workers who worked from home."],
+      ["average number", "平均数量", "The table shows the average number of trips per person."],
+      ["from January", "从一月开始", "The graph shows monthly sales from January to June."],
+      ["over ten years", "在十年期间", "The chart shows how electricity use changed over ten years."]
     ]
   },
   {
     name: "概述", english: "Overview", icon: "📊", writing: true,
     words: [
-      ["overall", "总体来看"], ["trend", "趋势"], ["upward", "向上的"],
-      ["downward", "向下的"], ["stable", "稳定的"], ["pattern", "变化模式"],
-      ["highest", "最高的"], ["lowest", "最低的"], ["increase", "增长，增幅"],
-      ["share", "份额，占比"],
-      ["in general", "总体来看"],
-      ["upward trend", "上升趋势"],
-      ["downward trend", "下降趋势"],
-      ["remained relatively stable", "保持相对稳定"],
-      ["similar pattern", "相似的变化规律"],
-      ["highest figure", "最高数值"],
-      ["lowest figure", "最低数值"],
-      ["largest increase", "最大增幅"],
-      ["largest share", "最大份额"],
-      ["throughout the period", "在整个时期内"]
+      ["overall", "总体来看", "Overall, car use rose while bus use declined."],
+      ["trend", "趋势", "The general trend was towards higher electricity use."],
+      ["upward", "向上的", "Sales showed an upward trend in both regions."],
+      ["downward", "向下的", "Bus use followed a downward trend."],
+      ["stable", "稳定的", "Rail use remained stable throughout the period."],
+      ["pattern", "变化模式", "Car and bus use showed the same pattern over time."],
+      ["highest", "最高的", "France had the highest recycling rate throughout the period."],
+      ["lowest", "最低的", "The youngest age group had the lowest employment rate."],
+      ["increase", "增长，增幅", "Overall, there was an increase in rail use in all three cities."],
+      ["share", "份额，占比", "Housing took up the largest share of household spending."],
+      ["in general", "总体来看", "In general, household spending rose across all income groups."],
+      ["upward trend", "上升趋势", "Online sales showed an upward trend."],
+      ["downward trend", "下降趋势", "Coal production followed a downward trend."],
+      ["remained relatively stable", "保持相对稳定", "Water use remained relatively stable in both regions."],
+      ["similar pattern", "相似的变化规律", "The two cities followed a similar pattern."],
+      ["highest figure", "最高数值", "France recorded the highest figure throughout the period."],
+      ["lowest figure", "最低数值", "Spain had the lowest figure in every year shown."],
+      ["largest increase", "最大增幅", "Rail travel saw the largest increase overall."],
+      ["largest share", "最大份额", "Housing accounted for the largest share of household spending."],
+      ["throughout the period", "在整个时期内", "Car use remained higher than bus use throughout the period."]
     ]
   },
   {
     name: "细节", english: "Details", icon: "📈", writing: true,
     words: [
-      ["rise", "上升"], ["drop", "下降"], ["peak", "达到峰值"],
-      ["fluctuate", "波动"], ["steadily", "稳步地"], ["sharply", "急剧地"],
-      ["overtake", "超过原本领先的对象"], ["gap", "差距"],
-      ["whereas", "而，用于对比"], ["respectively", "分别，按顺序对应"],
-      ["stood at", "数值为……"],
-      ["rose to", "上升到……"],
-      ["fell by", "下降了……"],
-      ["peaked at", "在……达到峰值"],
-      ["fluctuated between", "在……之间波动"],
-      ["percentage points", "百分点"],
-      ["twice as high", "是……的两倍"],
-      ["compared with", "与……相比"],
-      ["the gap widened", "差距扩大"],
-      ["the gap narrowed", "差距缩小"]
+      ["rise", "上升", "There was a rise in car sales in June."],
+      ["drop", "下降", "There was a drop in bus use in 2020."],
+      ["peak", "达到峰值", "Sales tend to peak in December."],
+      ["fluctuate", "波动", "Ticket prices fluctuate throughout the year."],
+      ["steadily", "稳步地", "The population grew steadily from 2000 to 2020."],
+      ["sharply", "急剧地", "Oil prices rose sharply in March."],
+      ["overtake", "超过原本领先的对象", "Online sales are projected to overtake store sales by 2030."],
+      ["gap", "差距", "The gap between the two figures was small in 2010."],
+      ["whereas", "而，用于对比", "Car use rose, whereas bus use declined."],
+      ["respectively", "分别，按顺序对应", "The figures for France and Spain were 40% and 60%, respectively."],
+      ["stood at", "数值为……", "The unemployment rate stood at 6% in May."],
+      ["rose to", "上升到……", "The recycling rate rose to 70% in 2020."],
+      ["fell by", "下降了……", "The number of visitors fell by 500 in July."],
+      ["peaked at", "在……达到峰值", "Monthly sales peaked at 8,000 units in December."],
+      ["fluctuated between", "在……之间波动", "The rate fluctuated between 4% and 6%."],
+      ["percentage points", "百分点", "The rate rose by ten percentage points, from 40% to 50%."],
+      ["twice as high", "是……的两倍", "The rate in France was twice as high as that in Spain."],
+      ["compared with", "与……相比", "The city recorded 800 trips in May, compared with 600 in April."],
+      ["the gap widened", "差距扩大", "By 2020, the gap widened to 15 percentage points."],
+      ["the gap narrowed", "差距缩小", "In 2020, the gap narrowed to five percentage points."]
     ]
   }
 ];
@@ -290,7 +308,7 @@ function prepareRound(selected, type, missed = null, focus = true) {
 }
 
 function renderPreviewList() {
-  byId("preview-list").replaceChildren(...queue.map(([word, meaning]) => {
+  byId("preview-list").replaceChildren(...queue.map(([word, meaning, example]) => {
     const item = document.createElement("li");
     const english = document.createElement("strong");
     english.lang = "en";
@@ -304,6 +322,13 @@ function renderPreviewList() {
     correct.textContent = `正确 ${stats.words[word]?.correct ?? 0} 次`;
     details.append(translation, correct);
     item.append(english, details);
+    if (example) {
+      const sentence = document.createElement("p");
+      sentence.className = "preview-example";
+      sentence.lang = "en";
+      sentence.textContent = example;
+      item.append(sentence);
+    }
     return item;
   }));
 }
@@ -321,17 +346,19 @@ function beginRound(review = false) {
 function updateAnswerVisibility() {
   const answeredIncorrectly = scored && wrong.at(-1) === queue[index];
   byId("word").hidden = !showEnglish.checked && !answeredIncorrectly;
+  byId("question-example").hidden = !queue[index]?.[2] || byId("word").hidden;
 }
 
 function renderQuestion(focus) {
   scored = false;
-  const [word, meaning] = queue[index];
+  const [word, meaning, example] = queue[index];
   byId("result").hidden = true;
   byId("question").hidden = false;
   byId("counter").textContent = `${index + 1} / ${queue.length}`;
   byId("progress").max = queue.length;
   byId("progress").value = index;
   byId("word").textContent = word;
+  byId("question-example").textContent = example ?? "";
   updateAnswerVisibility();
   byId("meaning").textContent = meaning;
   byId("word-stats").textContent = wordAccuracy(word);
