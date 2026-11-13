@@ -62,6 +62,21 @@ const topics = [
       ["share a link", "分享链接"], ["join a video call", "加入视频通话"],
       ["take a break from social media", "暂时不用社交媒体"], ["verify the source", "核实信息来源"]
     ]
+  },
+  {
+    name: "人际交流", english: "Interpersonal Communication", icon: "💬",
+    words: [
+      ["thoughtful", "体贴的"], ["friendly", "友好的"],
+      ["helpful", "乐于助人的"], ["patient", "有耐心的"],
+      ["polite", "有礼貌的"], ["respectful", "尊重他人的"],
+      ["supportive", "给予支持的"], ["trust", "信任"],
+      ["empathy", "同理心"], ["compromise", "妥协，折中"],
+      ["friendly and helpful", "友好又乐于助人"], ["kind and patient", "善良又有耐心"],
+      ["polite and respectful", "有礼貌且尊重他人"], ["respect others' privacy", "尊重他人的隐私"],
+      ["get along well with others", "与他人相处融洽"], ["share ideas and opinions", "分享想法和意见"],
+      ["build strong family ties", "建立紧密的家庭关系"], ["work closely with colleagues", "与同事密切合作"],
+      ["a thoughtful gift", "一份用心挑选的礼物"], ["catch up with old friends", "与老朋友叙旧"]
+    ]
   }
 ];
 
