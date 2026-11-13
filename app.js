@@ -77,6 +77,44 @@ const topics = [
       ["build strong family ties", "建立紧密的家庭关系"], ["work closely with colleagues", "与同事密切合作"],
       ["a thoughtful gift", "一份用心挑选的礼物"], ["catch up with old friends", "与老朋友叙旧"]
     ]
+  },
+  {
+    name: "引言", english: "Introduction", icon: "📝", writing: true,
+    words: [
+      ["illustrate", "图示，展示"], ["compare", "比较"],
+      ["chart", "图表"], ["graph", "示意图，统计图"], ["table", "表格"],
+      ["number", "数量"], ["amount", "量，用于不可数名词"],
+      ["percentage", "百分比"], ["proportion", "比例"], ["average", "平均的，平均值"],
+      ["the chart shows", "图表展示了"],
+      ["the graph illustrates", "图表说明了"],
+      ["the table compares", "表格比较了"],
+      ["the number of visitors", "访客人数"],
+      ["the amount of water used", "用水量"],
+      ["the percentage of households", "家庭所占的百分比"],
+      ["the proportion of students", "学生所占的比例"],
+      ["the average number of trips", "平均出行次数"],
+      ["between January and June", "在一月至六月之间"],
+      ["over a ten-year period", "在十年期间"]
+    ]
+  },
+  {
+    name: "概述", english: "Overview", icon: "📊", writing: true,
+    words: [
+      ["overall", "总体来看"], ["trend", "趋势"], ["upward", "向上的"],
+      ["downward", "向下的"], ["stable", "稳定的"], ["pattern", "变化模式"],
+      ["highest", "最高的"], ["lowest", "最低的"], ["increase", "增长，增幅"],
+      ["share", "份额，占比"],
+      ["on the whole", "总体来看"],
+      ["showed an upward trend", "呈上升趋势"],
+      ["showed a downward trend", "呈下降趋势"],
+      ["remained relatively stable", "保持相对稳定"],
+      ["followed a similar pattern", "呈现相似的变化规律"],
+      ["had the highest figure", "数值最高"],
+      ["had the lowest figure", "数值最低"],
+      ["saw the largest increase", "增幅最大"],
+      ["accounted for the largest share", "所占份额最大"],
+      ["throughout the period", "在整个时期内"]
+    ]
   }
 ];
 
@@ -217,7 +255,8 @@ function prepareRound(selected, type, missed = null, focus = true) {
       button.setAttribute("aria-pressed", id === selected && option === type);
     }
   });
-  byId("round-label").textContent = `${topics[selected].name} · ${practiceLabels[type]}${review ? " · 错词重练" : ""}`;
+  const topic = topics[selected];
+  byId("round-label").textContent = `${topic.writing ? "小作文 · " : ""}${topic.name} · ${practiceLabels[type]}${review ? " · 错词重练" : ""}`;
   if (review) {
     beginRound(true);
     return;
@@ -518,7 +557,7 @@ const topicPracticeButtons = topics.map((topic, id) => {
     return [type, button];
   });
   card.append(heading, options);
-  byId("topics").append(card);
+  byId(topic.writing ? "writing-topics" : "topics").append(card);
   return buttons;
 });
 
